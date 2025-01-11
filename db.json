@@ -1,0 +1,16 @@
+{
+  "tasks": [
+    {
+      "id": "4ee1",
+      "title": "Explore Local Art",
+      "description": "I plan to immerse myself in the vibrant local art scene by visiting galleries, studios, and public installations. I’ll engage with artists, learn about their creative processes, and discover the stories behind their work. Through this exploration, I aim to deepen my appreciation for the diverse artistic expressions within my community.",
+      "status": "pending"
+    },
+    {
+      "id": "7823",
+      "title": "Build a Fishnet",
+      "description": "I will create a fishnet by selecting the appropriate materials, measuring and cutting the netting to the desired size, and then expertly knotting it to ensure durability and functionality. This task involves attention to detail to ensure the net is both strong and effective for catching fish.",
+      "status": "completed"
+    }
+  ]
+}
