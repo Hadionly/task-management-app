@@ -6,6 +6,8 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -70,7 +72,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ navigation, route }) => {
   // * Header with back button
   const Header = (): JSX.Element => (
     <View style={styles.headerContainer}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}>
         <FontAwesome5 name="arrow-left" size={24} color="#000" />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>
@@ -153,162 +157,172 @@ const TaskForm: React.FC<TaskFormProps> = ({ navigation, route }) => {
   };
 
   return (
-    <ScrollView style={styles.mainContainer} stickyHeaderIndices={[0]}>
-      <Header />
-      <Formik
-        initialValues={
-          initialValues || { title: "", description: "", status: "pending" }
-        }
-        validationSchema={validationSchema}
-        onSubmit={onSubmit}
-        enableReinitialize>
-        {({
-          handleChange,
-          handleSubmit,
-          setFieldValue,
-          values,
-          errors,
-          touched,
-        }) => (
-          <View style={styles.container}>
-            <Text style={styles.sectionTitle}>Task Title</Text>
-            <TextInput
-              placeholder="Write a task title"
-              value={values.title}
-              onChangeText={handleChange("title")}
-              style={styles.input}
-            />
-            {touched.title && errors.title && (
-              <Text style={styles.errorText}>{errors.title}</Text>
-            )}
-            {!isEditing && (
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Suggested Tasks</Text>
-                <TouchableOpacity
-                  style={styles.refreshButton}
-                  onPress={async () => {
-                    setIsLoadingTitles(true);
-                    const titles = await generateRandomTitles();
-                    setRandomTitles(titles);
-                    setIsLoadingTitles(false);
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}>
+      <ScrollView
+        style={styles.mainContainer}
+        stickyHeaderIndices={[0]}
+        bounces={false}>
+        <Header />
+        <Formik
+          initialValues={
+            initialValues || { title: "", description: "", status: "pending" }
+          }
+          validationSchema={validationSchema}
+          onSubmit={onSubmit}
+          enableReinitialize>
+          {({
+            handleChange,
+            handleSubmit,
+            setFieldValue,
+            values,
+            errors,
+            touched,
+          }) => (
+            <View style={styles.container}>
+              <Text style={styles.sectionTitle}>Task Title</Text>
+              <TextInput
+                placeholder="Write a task title"
+                value={values.title}
+                onChangeText={handleChange("title")}
+                style={styles.input}
+              />
+              {touched.title && errors.title && (
+                <Text style={styles.errorText}>{errors.title}</Text>
+              )}
+              {!isEditing && (
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Suggested Tasks</Text>
+                  <TouchableOpacity
+                    style={styles.refreshButton}
+                    onPress={async () => {
+                      setIsLoadingTitles(true);
+                      const titles = await generateRandomTitles();
+                      setRandomTitles(titles);
+                      setIsLoadingTitles(false);
+                    }}
+                    disabled={isLoadingTitles}>
+                    <FontAwesome5
+                      name="sync-alt"
+                      size={16}
+                      color="#007AFF"
+                      style={[
+                        styles.refreshIcon,
+                        isLoadingTitles && {
+                          transform: [{ rotate: "180deg" }],
+                        },
+                      ]}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )}
+              {isLoadingTitles ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color="#007AFF" />
+                  <Text style={styles.loadingText}>Generating titles...</Text>
+                </View>
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.randomTitlesContainer}>
+                  <View style={styles.titlesRows}>
+                    {chunkArray(randomTitles, randomTitles.length / 2).map(
+                      (row, rowIndex) => (
+                        <View key={rowIndex} style={styles.titleRow}>
+                          {row.map((title, titleIndex) => {
+                            const colorIndex =
+                              rowIndex * (randomTitles.length / 2) + titleIndex;
+                            return (
+                              <TouchableOpacity
+                                key={title}
+                                style={[
+                                  styles.randomTitle,
+                                  rowIndex === 1 && { marginTop: 10 },
+                                  {
+                                    backgroundColor:
+                                      getColorForIndex(colorIndex) + "33", // Add opacity
+                                    // borderColor: "transparent",
+                                    borderWidth: 0.5,
+                                    borderColor: getColorForIndex(colorIndex),
+                                  },
+                                ]}
+                                onPress={() => {
+                                  setFieldValue("title", title);
+                                  generateTaskDescription(title, setFieldValue);
+                                }}>
+                                <Text
+                                  style={[
+                                    styles.randomTitleText,
+                                    { color: getColorForIndex(colorIndex) }, // Dark text for readability
+                                  ]}>
+                                  {title}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+                      )
+                    )}
+                  </View>
+                </ScrollView>
+              )}
+              <Text style={styles.sectionTitle}>Task Description</Text>
+
+              <View style={styles.descriptionContainer}>
+                {/* Typing effect */}
+                <TextInput
+                  style={styles.descriptionInput}
+                  placeholder="Description"
+                  onChangeText={(text) => {
+                    handleChange("description")(text);
                   }}
-                  disabled={isLoadingTitles}>
-                  <FontAwesome5
-                    name="sync-alt"
-                    size={16}
-                    color="#007AFF"
-                    style={[
-                      styles.refreshIcon,
-                      isLoadingTitles && { transform: [{ rotate: "180deg" }] },
-                    ]}
-                  />
+                  value={values.description}
+                  multiline
+                />
+
+                <TouchableOpacity
+                  style={styles.aiButton}
+                  onPress={() =>
+                    generateTaskDescription(values.title, setFieldValue)
+                  }
+                  disabled={isLoadingDescription}>
+                  {isLoadingDescription ? (
+                    <ActivityIndicator size="small" color="#007AFF" />
+                  ) : (
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}>
+                      <Text style={{ color: "#007AFF", marginRight: 10 }}>
+                        AI Description Writer
+                      </Text>
+                      <FontAwesome5 name="robot" size={20} color="#007AFF" />
+                    </View>
+                  )}
                 </TouchableOpacity>
               </View>
-            )}
-            {isLoadingTitles ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#007AFF" />
-                <Text style={styles.loadingText}>Generating titles...</Text>
-              </View>
-            ) : (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.randomTitlesContainer}>
-                <View style={styles.titlesRows}>
-                  {chunkArray(randomTitles, randomTitles.length / 2).map(
-                    (row, rowIndex) => (
-                      <View key={rowIndex} style={styles.titleRow}>
-                        {row.map((title, titleIndex) => {
-                          const colorIndex =
-                            rowIndex * (randomTitles.length / 2) + titleIndex;
-                          return (
-                            <TouchableOpacity
-                              key={title}
-                              style={[
-                                styles.randomTitle,
-                                rowIndex === 1 && { marginTop: 10 },
-                                {
-                                  backgroundColor:
-                                    getColorForIndex(colorIndex) + "33", // Add opacity
-                                  // borderColor: "transparent",
-                                  borderWidth: 0.5,
-                                  borderColor: getColorForIndex(colorIndex),
-                                },
-                              ]}
-                              onPress={() => {
-                                setFieldValue("title", title);
-                                generateTaskDescription(title, setFieldValue);
-                              }}>
-                              <Text
-                                style={[
-                                  styles.randomTitleText,
-                                  { color: getColorForIndex(colorIndex) }, // Dark text for readability
-                                ]}>
-                                {title}
-                              </Text>
-                            </TouchableOpacity>
-                          );
-                        })}
-                      </View>
-                    )
-                  )}
-                </View>
-              </ScrollView>
-            )}
-            <Text style={styles.sectionTitle}>Task Description</Text>
-
-            <View style={styles.descriptionContainer}>
-              {/* Typing effect */}
-              <TextInput
-                style={styles.descriptionInput}
-                placeholder="Description"
-                onChangeText={(text) => {
-                  handleChange("description")(text);
-                }}
-                value={values.description}
-                multiline
-              />
-
-              <TouchableOpacity
-                style={styles.aiButton}
-                onPress={() =>
-                  generateTaskDescription(values.title, setFieldValue)
-                }
-                disabled={isLoadingDescription}>
-                {isLoadingDescription ? (
-                  <ActivityIndicator size="small" color="#007AFF" />
-                ) : (
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={{ color: "#007AFF", marginRight: 10 }}>
-                      AI Description Writer
+              {touched.description && errors.description && (
+                <Text style={styles.errorText}>{errors.description}</Text>
+              )}
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[styles.button, styles.submitButton]}
+                  onPress={() => handleSubmit()}
+                  disabled={loading}>
+                  {loading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={styles.buttonText}>
+                      {isEditing ? "Update Task" : "Add Task"}
                     </Text>
-                    <FontAwesome5 name="robot" size={20} color="#007AFF" />
-                  </View>
-                )}
-              </TouchableOpacity>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
-            {touched.description && errors.description && (
-              <Text style={styles.errorText}>{errors.description}</Text>
-            )}
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={[styles.button, styles.submitButton]}
-                onPress={() => handleSubmit()}
-                disabled={loading}>
-                {loading ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text style={styles.buttonText}>
-                    {isEditing ? "Update Task" : "Add Task"}
-                  </Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      </Formik>
-    </ScrollView>
+          )}
+        </Formik>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

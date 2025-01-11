@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   mainContainer: {
@@ -52,7 +52,7 @@ export const styles = StyleSheet.create({
     marginTop: 0,
   },
   aiButton: {
-    // marginHorizontal: 10,
+    marginTop: Platform.OS === "ios" ? 10 : 0,
     backgroundColor: "transparent",
     padding: 10,
     width: "100%",

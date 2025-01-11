@@ -83,7 +83,8 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
               isEditing: false,
               selectedTask: null,
             })
-          }>
+          }
+          hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}>
           <FontAwesome5
             name="plus"
             size={20}
@@ -110,6 +111,7 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={ListHeaderComponent}
         stickyHeaderIndices={[0]}
+        bounces={false}
         renderItem={({ item }) => (
           <TaskCard
             task={item}
