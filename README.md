@@ -34,7 +34,6 @@ A modern task management application built with React Native and OpenAI integrat
 3. Install dependencies and json-server:
    ```sh
    npm install
-   npm install -g json-server
    ```
 4. Run the app:
    ```sh
