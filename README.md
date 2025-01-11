@@ -29,7 +29,7 @@ A modern task management application built with React Native and OpenAI integrat
    ```
 2. Navigate to the project directory:
    ```sh
-   cd task-management
+   cd task-management-app
    ```
 3. Install dependencies and json-server:
    ```sh
