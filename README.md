@@ -69,7 +69,7 @@ A modern task management application built with React Native and OpenAI integrat
    Replace YOUR_IPV4_ADDRESS with the address found in step 2
    And API_KEY with OpenAI Key
 
-4. Start JSON Server:
+4. Start JSON Server on a new terminal before using the app:
    ```sh
    json-server db.json --port 3000 --host 0.0.0.0
    ```
@@ -77,6 +77,30 @@ A modern task management application built with React Native and OpenAI integrat
 Note: Your mobile device/emulator must be on the same network as your development machine.
 
 ## Usage
+
+## Expo Go Setup and Usage
+
+### Expo Go Installation
+
+1. Install Expo Go on your mobile device:
+   - iOS: [App Store](https://apps.apple.com/app/expo-go/id982107779)
+   - Android: [Play Store](https://play.google.com/store/apps/details?id=host.exp.exponent)
+
+### Running the App
+
+1. Start Expo development server:
+
+```sh
+npx expo start
+```
+
+2. Connect to your app:
+
+- Android: Scan QR code with Expo Go app
+- iOS: Scan QR code with Camera app
+- Emulator: Press 'a' for Android or 'i' for iOS
+
+### Test Usage
 
 1. Launch the app on your device/emulator
 2. Create a new task using the + button
